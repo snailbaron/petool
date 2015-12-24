@@ -1,16 +1,12 @@
-//#include <Windows.h>
-//#include <winnt.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "error.h"
+#include "pe_signature.h"
+#include "coff_file_header.h"
 
-typedef struct {
-    uint16_t Machine;
-    uint16_t NumberOfSections;
-    uint32_t TimeDateStamp;
-    uint32_t PointerToSymbolTable;
-    uint32_t NumberOfSymbols;
-    uint16_t SizeOfOptionalHeader;
-    uint16_t Characteristics;
-} coff_file_header_t;
 
 typedef enum {
     IMAGE_FILE_MACHINE_UNKNOWN =          0,
@@ -877,7 +873,32 @@ typedef import_directory_record_t;
 
 
 
+bool read_exe(FILE *infile)
+{
+    if (!read_pe_signature(infile)) {
+        return false;
+    }
+
+    coff_file_header_t coff_file_header;
+    if (!read_coff_file_header(infile, &coff_file_header)) {
+        return false;
+    }
+
+    printf("Read SUCCESS\n");
+    return true;
+}
+
 
 int main()
 {
+    FILE *infile = NULL;
+    if (fopen_s(&infile, "args.exe", "rb")) {
+        set_error("Failed to open file");
+        return false;
+    }
+
+    if (!read_exe(infile)) {
+        fprintf(stderr, "ERROR: %s\n", get_error());
+    }
+    fclose(infile);
 }
