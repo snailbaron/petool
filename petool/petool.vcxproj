@@ -125,11 +125,13 @@
     <ClCompile Include="coff_file_header.c" />
     <ClCompile Include="error.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="optional_header.c" />
     <ClCompile Include="pe_signature.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coff_file_header.h" />
     <ClInclude Include="error.h" />
+    <ClInclude Include="optional_header.h" />
     <ClInclude Include="pe_signature.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

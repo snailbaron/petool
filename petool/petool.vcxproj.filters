@@ -27,6 +27,9 @@
     <ClCompile Include="coff_file_header.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="optional_header.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coff_file_header.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pe_signature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="optional_header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
