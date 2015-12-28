@@ -1,5 +1,7 @@
 /SDL2-2.0.3/
-Debug/
+/Debug/
+/petool/Debug/
+/petool/x64/
 *.user
 *.sdf
 *.suo
