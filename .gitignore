@@ -2,6 +2,8 @@
 /Debug/
 /petool/Debug/
 /petool/x64/
+/x64/
 *.user
 *.sdf
 *.suo
+*.opensdf

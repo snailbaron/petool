@@ -33,7 +33,10 @@
     <ClCompile Include="src\vis_table.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pet_struct.c">
+    <ClCompile Include="src\vis_struct.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\da.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +56,10 @@
     <ClInclude Include="src\vis_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\pet_struct.h">
+    <ClInclude Include="src\vis_struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\da.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
