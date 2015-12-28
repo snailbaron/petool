@@ -76,5 +76,4 @@ const char * characteristics_to_string(characteristics_t value);
 bool read_coff_file_header(FILE *infile, coff_file_header_t *coff_file_header);
 void print_coff_file_header(const coff_file_header_t *coff_file_header);
 
-
 #endif

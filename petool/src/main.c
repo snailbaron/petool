@@ -8,7 +8,7 @@
 #include "coff_file_header.h"
 #include "optional_header.h"
 
-
+#include <SDL.h>
 
 
 
@@ -744,32 +744,40 @@ typedef import_directory_record_t;
 
 
 
-bool read_exe(FILE *infile)
+bool read_exe(const char *fname)
 {
-    if (!read_pe_signature(infile)) {
+    FILE *infile = NULL;
+    if (fopen_s(&infile, fname, "rb")) {
+        set_error("Failed to open file");
         return false;
     }
 
+    read_pe_signature(infile);
     coff_file_header_t coff_file_header;
-    if (!read_coff_file_header(infile, &coff_file_header)) {
-        return false;
+    if (read_coff_file_header(infile, &coff_file_header)) {
+        print_coff_file_header(&coff_file_header);
+        printf("\n");
     }
-    print_coff_file_header(&coff_file_header);
-    printf("\n");
 
     optional_header_t optional_header;
-    if (!read_optional_header(infile, &optional_header)) {
-        return false;
+    if (read_optional_header(infile, &optional_header)) {
+        print_optional_header(&optional_header);
+        printf("\n");
     }
-    print_optional_header(&optional_header);
-    printf("\n");
 
-    printf("Read SUCCESS\n");
+    if (has_error()) {
+        printf("ERROR: %s\n", get_error());
+    } else {
+        printf("SUCCESS\n");
+    }
+
+    fclose(infile);
+
     return true;
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
     FILE *infile = NULL;
     if (fopen_s(&infile, "args.exe", "rb")) {
@@ -777,8 +785,83 @@ int main()
         return false;
     }
 
-    if (!read_exe(infile)) {
-        fprintf(stderr, "ERROR: %s\n", get_error());
+    read_pe_signature(infile);
+
+    coff_file_header_t coff_file_header;
+    if (read_coff_file_header(infile, &coff_file_header)) {
+        print_coff_file_header(&coff_file_header);
+        printf("\n");
     }
+
+    optional_header_t optional_header;
+    if (read_optional_header(infile, &optional_header)) {
+        print_optional_header(&optional_header);
+        printf("\n");
+    }
+
+    if (has_error()) {
+        printf("ERROR: %s\n", get_error());
+    } else {
+        printf("SUCCESS\n");
+    }
+
     fclose(infile);
+
+
+
+    if (SDL_Init(SDL_INIT_VIDEO)) {
+        set_error("Failed to init SDL");
+        return 0;
+    }
+
+    SDL_Window *wnd = SDL_CreateWindow("Title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
+    if (!wnd) {
+        set_error("Failed to create SDL Window");
+        return 0;
+    }
+
+    SDL_Renderer *rend = SDL_CreateRenderer(wnd, -1, SDL_RENDERER_ACCELERATED);
+    if (!rend) {
+        set_error("Failed to create SDL renderer");
+        return 0;
+    }
+
+    SDL_SetRenderDrawColor(rend, 150, 150, 150, 255);
+    SDL_RenderClear(rend);
+
+    SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
+    SDL_Rect r = { .x = 20, .y = 20, .w = 50, .h = 50 };
+    SDL_RenderDrawRect(rend, &r);
+
+
+
+
+    SDL_RenderPresent(rend);
+    
+    bool done = false;
+    while (!done) {
+        SDL_Event evt;
+        while (SDL_PollEvent(&evt)) {
+            switch (evt.type)
+            {
+                case SDL_QUIT:
+                    done = true;
+                    break;
+
+                case SDL_KEYDOWN:
+                    if ((evt.key.keysym.mod & KMOD_ALT) && evt.key.keysym.sym == SDLK_F4) {
+                        done = true;
+                    }
+                    break;
+            }
+        }
+
+        
+    }
+
+    SDL_DestroyWindow(wnd);
+
+    SDL_Quit();
+
+    return 0;
 }

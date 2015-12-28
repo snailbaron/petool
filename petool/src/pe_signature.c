@@ -4,6 +4,10 @@
 
 bool read_pe_signature(FILE *infile)
 {
+    if (has_error()) {
+        return false;
+    }
+
     if (fseek(infile, 0x3C, SEEK_SET)) {
         set_error("Failed to go to 0x3C");
         return false;
