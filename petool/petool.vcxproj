@@ -158,19 +158,21 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="coff_file_header.c" />
-    <ClCompile Include="error.c" />
-    <ClCompile Include="main.c" />
-    <ClCompile Include="optional_header.c" />
-    <ClCompile Include="pe_signature.c" />
-    <ClCompile Include="vis_table.c" />
+    <ClCompile Include="src\coff_file_header.c" />
+    <ClCompile Include="src\error.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\optional_header.c" />
+    <ClCompile Include="src\pet_struct.c" />
+    <ClCompile Include="src\pe_signature.c" />
+    <ClCompile Include="src\vis_table.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="coff_file_header.h" />
-    <ClInclude Include="error.h" />
-    <ClInclude Include="optional_header.h" />
-    <ClInclude Include="pe_signature.h" />
-    <ClInclude Include="vis_table.h" />
+    <ClInclude Include="src\coff_file_header.h" />
+    <ClInclude Include="src\error.h" />
+    <ClInclude Include="src\optional_header.h" />
+    <ClInclude Include="src\pet_struct.h" />
+    <ClInclude Include="src\pe_signature.h" />
+    <ClInclude Include="src\vis_table.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

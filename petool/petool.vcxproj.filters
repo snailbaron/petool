@@ -15,39 +15,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
+    <ClCompile Include="src\coff_file_header.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="error.c">
+    <ClCompile Include="src\error.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pe_signature.c">
+    <ClCompile Include="src\optional_header.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="coff_file_header.c">
+    <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="optional_header.c">
+    <ClCompile Include="src\pe_signature.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vis_table.c">
+    <ClCompile Include="src\vis_table.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pet_struct.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="coff_file_header.h">
+    <ClInclude Include="src\coff_file_header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="error.h">
+    <ClInclude Include="src\error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pe_signature.h">
+    <ClInclude Include="src\optional_header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="optional_header.h">
+    <ClInclude Include="src\pe_signature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vis_table.h">
+    <ClInclude Include="src\vis_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pet_struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
