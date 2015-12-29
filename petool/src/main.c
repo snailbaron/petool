@@ -7,8 +7,8 @@
 #include "pe_signature.h"
 #include "coff_file_header.h"
 #include "optional_header.h"
+#include "petc_parser.h"
 
-#include <SDL.h>
 
 
 
@@ -776,7 +776,14 @@ bool read_exe(const char *fname)
     return true;
 }
 
+int main(int argc, char *argv[])
+{
+    parse_file("std/coff-file-header.petc");
 
+
+}
+
+/*
 int main(int argc, char *argv[])
 {
     FILE *infile = NULL;
@@ -865,3 +872,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+*/

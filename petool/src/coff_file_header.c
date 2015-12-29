@@ -6,12 +6,6 @@
 
 void init_coff_file_header()
 {
-    vis_table_t vis_coff_file_header = vis_make_table("COFF File Header");
-    vis_record_t rec_machine = vis_make_record("Machine", 2, 0);
-    vis_add_value(&rec_machine, vis_make_value("IMAGE_FILE_MACHINE_UNKNOWN", 0, "Unknown machine"));
-    vis_add_value(&rec_machine, vis_make_value("IMAGE_FILE_MACHINE_ALPHA", 0x0184, "Alpha_AXP"));
-    vis_add_value(&rec_machine, vis_make_value("IMAGE_FILE_MACHINE_ALPHA64", 0x0284, "ALPHA64"));
-    vis_add_value(&rec_machine, vis_make_value("IMAGE_FILE_MACHINE_AM33", 0x01d3, ""));
 }
 
 bool read_coff_file_header(FILE *infile, coff_file_header_t *coff_file_header)
@@ -90,7 +84,7 @@ const char * characteristics_to_string(characteristics_t value)
     size_t max_len = 5000;
     size_t buf_size = 5001;
     size_t i = 0;
-    char buf[5001];
+    static char buf[5001];
 
     FLAG_CASE(IMAGE_FILE_RELOCS_STRIPPED)
     FLAG_CASE(IMAGE_FILE_EXECUTABLE_IMAGE)

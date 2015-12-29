@@ -1,4 +1,3 @@
-# COFF File Header description
 
 [COFF File Header]
 -------------------------------------------------------------------------------------------------------
@@ -20,11 +19,9 @@
 2 | FLAG | Characteristics      | The flags that indicate the attributes of the file.
 -------------------------------------------------------------------------------------------------------
 
-# COFF File Header: Machine ENUM
-
 [COFF File Header]: Machine
 -------------------------------------------------------------------------------------------------------
-IMAGE_FILE_MACHINE_UNKNOWN   | 0      |
+IMAGE_FILE_MACHINE_UNKNOWN   | 0x0    |
 IMAGE_FILE_MACHINE_ALPHA     | 0x0184 | Alpha_AXP, NOT IN SPEC
 IMAGE_FILE_MACHINE_ALPHA64   | 0x0284 | ALPHA64, NOT IN SPEC
 IMAGE_FILE_MACHINE_AM33      | 0x01d3 |
@@ -56,8 +53,6 @@ IMAGE_FILE_MACHINE_THUMB     | 0x01c2 | ARM Thumb/Thumb-2 Little-Endian
 IMAGE_FILE_MACHINE_TRICORE   | 0x0520 | Infineon, NOT IN SPEC
 IMAGE_FILE_MACHINE_WCEMIPSV2 | 0x0169 | MIPS little-endian WCE v2
 -------------------------------------------------------------------------------------------------------
-
-# COFF File Header: Characteristics flags
 
 [COFF File Header]: Characteristics
 -------------------------------------------------------------------------------------------------------

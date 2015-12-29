@@ -163,6 +163,7 @@
     <ClCompile Include="src\error.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\optional_header.c" />
+    <ClCompile Include="src\petc_parser.c" />
     <ClCompile Include="src\vis_struct.c" />
     <ClCompile Include="src\pe_signature.c" />
     <ClCompile Include="src\vis_table.c" />
@@ -172,6 +173,7 @@
     <ClInclude Include="src\coff_file_header.h" />
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\optional_header.h" />
+    <ClInclude Include="src\petc_parser.h" />
     <ClInclude Include="src\vis_struct.h" />
     <ClInclude Include="src\pe_signature.h" />
     <ClInclude Include="src\vis_table.h" />

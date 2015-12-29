@@ -39,6 +39,9 @@
     <ClCompile Include="src\da.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\petc_parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\coff_file_header.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\da.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\petc_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
