@@ -781,7 +781,19 @@ int main(int argc, char *argv[])
 {
     parse_file("std/coff-file-header.petc");
 
+    FILE *infile = NULL;
+    if (fopen_s(&infile, "args.exe", "rb")) {
+        set_error("Failed to open file");
+        return false;
+    }
+
+    read_pe_signature(infile);
+
+    vis_read_struct(infile, "COFF File Header");
+
     vis_print_all();
+
+    fclose(infile);
 }
 
 /*

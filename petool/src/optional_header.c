@@ -64,6 +64,5 @@ void print_optional_header(optional_header_t *header)
         printf("    SizeOfHeapCommit: %d\n", h->SizeOfHeapCommit);
         printf("    LoaderFlags: %d\n", h->LoaderFlags);
         printf("    NumberOfRvaAndSizes: %d\n", h->NumberOfRvaAndSizes);
-
     } 
 }

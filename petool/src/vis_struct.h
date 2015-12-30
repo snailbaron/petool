@@ -13,7 +13,6 @@
 #define MAX_NAME_LEN 100
 #define MAX_DESCR_LEN 5000
 
-
 typedef uint64_t vis_value_t;
 
 /**
@@ -66,5 +65,7 @@ typedef struct vis_value_info_t
 void vis_add_value_info(vis_field_t *field, const char *name, vis_value_t value, const char *description);
 
 void vis_print_all();
+
+void vis_read_struct(FILE *infile, const char *struct_name);
 
 #endif
