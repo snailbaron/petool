@@ -8,6 +8,7 @@
 #include "coff_file_header.h"
 #include "optional_header.h"
 #include "petc_parser.h"
+#include "vis_struct.h"
 
 
 
@@ -780,7 +781,7 @@ int main(int argc, char *argv[])
 {
     parse_file("std/coff-file-header.petc");
 
-
+    vis_print_all();
 }
 
 /*

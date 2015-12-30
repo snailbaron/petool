@@ -30,16 +30,13 @@
     <ClCompile Include="src\pe_signature.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\vis_table.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\vis_struct.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\da.c">
+    <ClCompile Include="src\petc_parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\petc_parser.c">
+    <ClCompile Include="src\store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,16 +53,13 @@
     <ClInclude Include="src\pe_signature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\vis_table.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\vis_struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\da.h">
+    <ClInclude Include="src\petc_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\petc_parser.h">
+    <ClInclude Include="src\store.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

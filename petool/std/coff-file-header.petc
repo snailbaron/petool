@@ -1,4 +1,3 @@
-
 [COFF File Header]
 -------------------------------------------------------------------------------------------------------
 2 | ENUM | Machine              | The number that identifies the type of target machine.

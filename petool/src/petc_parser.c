@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 #include "vis_struct.h"
 
 #define MAX_ERROR_LEN 5000
@@ -15,13 +17,17 @@ static unsigned int line_number = 1;
 static unsigned int sym_number = 0;
 
 static char table_name[MAX_NAME_LEN + 1] = "";
-static char field_size[MAX_SIZE_LEN + 1] = "";
-static char field_type[MAX_TYPE_LEN + 1] = "";
+static vis_struct_t *current_struct = NULL;
+
+static vis_field_t *current_field = NULL;
+static size_t field_size = 0;
+static vis_field_type_t field_type;
+
 static char field_name[MAX_NAME_LEN + 1] = "";
 static char description[MAX_DESCR_LEN + 1] = "";
 static size_t descr_idx = 0;
 static char value_name[MAX_NAME_LEN + 1] = "";
-static char value_num[MAX_VALUE_LEN + 1] = "";
+static vis_value_t value = 0;
 
 static char error[MAX_ERROR_LEN + 1] = "";
 static int error_pos = 0;
@@ -187,29 +193,27 @@ void parse_value_number()
     check_status();
     parse_string("0x");
 
-    size_t i = 0;
+    char buf[MAX_VALUE_LEN + 1];
     if (is_hex_digit()) {
-        value_num[i++] = c;
+        buf[0] = c;
     }
     parse_char_check(is_hex_digit, "hex digit");
+    read_value(is_hex_digit, buf + 1, MAX_VALUE_LEN - 1, "value");
 
-    read_value(is_hex_digit, value_num + 1, MAX_VALUE_LEN - 1, "value");
-
-    if (!status) {
-        err("Expected: %s\n", "hexadecimal number");
-    }
+    value = strtoull(buf, NULL, 16);
 }
 
 void parse_field_size()
 {
     check_status();
-    size_t i = 0;
+    char buf[MAX_SIZE_LEN + 1];
     if (is_dec_digit()) {
-        field_size[i++] = c;
+        buf[0] = c;
     }
     parse_char_check(is_dec_digit, "decimal digit");
-
-    read_value(is_dec_digit, field_size + 1, MAX_SIZE_LEN - 1, "field size");
+    read_value(is_dec_digit, buf + 1, MAX_SIZE_LEN - 1, "field size");
+    check_status();
+    field_size = atoll(buf);
 }
 
 void parse_field_separator()
@@ -283,8 +287,7 @@ void parse_value()
     parse_field_separator();
     parse_description();
 
-    printf("    VALUE: %s (0x%s)\n", value_name, value_num);
-    printf("           %s\n", description);
+    vis_add_value_info(current_field, value_name, value, description);
 }
 
 void parse_field_definition()
@@ -317,19 +320,19 @@ void parse_field_type()
     if (c == 'E') {
         parse_string("ENUM");
         check_status();
-        strncpy_s(field_type, MAX_TYPE_LEN + 1, "ENUM", MAX_TYPE_LEN);
+        field_type = VIS_ENUM;
     } else if (c == 'U') {
         parse_string("UINT");
         check_status();
-        strncpy_s(field_type, MAX_TYPE_LEN + 1, "UINT", MAX_TYPE_LEN);
+        field_type = VIS_UINT;
     } else if (c == 'T') {
         parse_string("TIME");
         check_status();
-        strncpy_s(field_type, MAX_TYPE_LEN + 1, "TIME", MAX_TYPE_LEN);
+        field_type = VIS_TIME;
     } else if (c == 'F') {
         parse_string("FLAG");
         check_status();
-        strncpy_s(field_type, MAX_TYPE_LEN + 1, "FLAG", MAX_TYPE_LEN);
+        field_type = VIS_FLAG;
     } else {
         err("Expected: %s\n", "field type");
     }
@@ -346,8 +349,7 @@ void parse_field()
     parse_field_separator();
     parse_description();
 
-    printf("    FIELD: %s (%s, %s bytes)\n", field_name, field_type, field_size);
-    printf("           %s\n", description);
+    vis_add_field(current_struct, field_name, field_size, field_type, description);
 }
 
 void parse_table_definition()
@@ -388,11 +390,8 @@ void parse_definition()
     if (is_eol()) {
         parse_eol();
 
-        printf("Table: %s\n", table_name);
-
+        current_struct = vis_create_struct(table_name);
         parse_table_definition();
-
-        printf("\n");
     } else {
         parse_char(':');
         while (is_line_space()) {
@@ -400,7 +399,8 @@ void parse_definition()
         }
         parse_field_name();
 
-        printf("Table [%s] field: %s\n", table_name, field_name);
+        current_struct = vis_find_struct(table_name);
+        current_field = vis_find_field(current_struct, field_name);
 
         while (is_line_space()) {
             get_char();

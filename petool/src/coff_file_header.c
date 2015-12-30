@@ -1,7 +1,6 @@
 #include "coff_file_header.h"
 #include "error.h"
 #include <time.h>
-#include "vis_table.h"
 
 
 void init_coff_file_header()
