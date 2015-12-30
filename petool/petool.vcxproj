@@ -75,15 +75,18 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;$(SolutionDir)sdl-ttf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"</Command>
+      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\libfreetype-6.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\SDL2_ttf.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy DLLs</Message>
@@ -95,15 +98,18 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;$(SolutionDir)sdl-ttf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"</Command>
+      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\libfreetype-6.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\SDL2_ttf.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy DLLs</Message>
@@ -117,17 +123,20 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;$(SolutionDir)sdl-ttf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"</Command>
+      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\libfreetype-6.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\SDL2_ttf.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy DLLs</Message>
@@ -141,17 +150,20 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl\include;$(SolutionDir)sdl-ttf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"</Command>
+      <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\libfreetype-6.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\SDL2_ttf.dll" "$(ProjectDir)"
+copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy DLLs</Message>
@@ -159,6 +171,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\error.c" />
+    <ClCompile Include="src\gfx.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\optional_header.c" />
     <ClCompile Include="src\petc_parser.c" />
@@ -168,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\error.h" />
+    <ClInclude Include="src\gfx.h" />
     <ClInclude Include="src\optional_header.h" />
     <ClInclude Include="src\petc_parser.h" />
     <ClInclude Include="src\store.h" />

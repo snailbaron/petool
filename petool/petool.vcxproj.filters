@@ -36,6 +36,9 @@
     <ClCompile Include="src\store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gfx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\error.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\store.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

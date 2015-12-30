@@ -8,6 +8,7 @@
 #define VIS_STRUCT_H
 
 #include <stdint.h>
+#include <stdio.h>
 #include "store.h"
 
 #define MAX_NAME_LEN 100
@@ -63,6 +64,7 @@ typedef struct vis_value_info_t
 } vis_value_info_t;
 
 void vis_add_value_info(vis_field_t *field, const char *name, vis_value_t value, const char *description);
+const char * vis_field_value_str(vis_field_t *field);
 
 void vis_print_all();
 

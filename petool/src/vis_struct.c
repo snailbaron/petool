@@ -1,11 +1,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <time.h>
 #include "vis_struct.h"
+
+#define MAX_VALUE_STR_LEN 5000
 
 // Currently existing visual structures
 static store_t structs = store_init(vis_struct_t);
@@ -56,14 +57,16 @@ vis_field_t * vis_find_field(vis_struct_t *st, const char *field_name)
     return NULL;
 }
 
-// Print current value of the field
-void vis_print_field_value(vis_field_t *field)
+// Get field value as a string
+const char * vis_field_value_str(vis_field_t *field)
 {
+    static char buffer[MAX_VALUE_STR_LEN + 1];
+
     switch (field->type)
     {
         case VIS_UINT:
         {
-            printf("%lld", field->value);
+            sprintf_s(buffer, MAX_VALUE_STR_LEN + 1, "%lld", field->value);
             break;
         }
 
@@ -79,9 +82,9 @@ void vis_print_field_value(vis_field_t *field)
             }
 
             if (matching_vi) {
-                printf("%s", matching_vi->name);
+                sprintf_s(buffer, MAX_VALUE_STR_LEN + 1, "%s", matching_vi->name);
             } else {
-                printf("Unknown (0x%llx)", field->value);
+                sprintf_s(buffer, MAX_VALUE_STR_LEN + 1, "Unknown (0x%llx)", field->value);
             }
 
             break;
@@ -89,10 +92,11 @@ void vis_print_field_value(vis_field_t *field)
 
         case VIS_FLAG:
         {
+            size_t pos = 0;
             for (size_t i = 0; i < field->valid_values.size; i++) {
                 vis_value_info_t *vi = store_pget(&field->valid_values, i);
                 if (field->value & vi->value) {
-                    printf("%s ", vi->name);
+                    pos += sprintf_s(buffer + pos, MAX_VALUE_STR_LEN + 1 - pos, "%s ", vi->name);
                 }
             }
             break;
@@ -100,10 +104,12 @@ void vis_print_field_value(vis_field_t *field)
 
         case VIS_TIME:
         {
-            printf("%s", ctime((time_t *)&field->value));
+            sprintf_s(buffer, MAX_VALUE_STR_LEN + 1, "%s", ctime((time_t *)&field->value));
             break;
         }
     }
+
+    return buffer;
 }
 
 // Add a new valid value to a field of a visual structure
@@ -163,10 +169,7 @@ void vis_print_all()
 
         for (size_t j = 0; j < st->fields.size; j++) {
             vis_field_t *f = store_pget(&st->fields, j);
-            printf("    Field: %s (%s, %lld bytes) = ", f->name, vis_field_type_to_str(f->type), f->size);
-            vis_print_field_value(f);
-            printf("\n");
-
+            printf("    Field: %s (%s, %lld bytes) = %s\n", f->name, vis_field_type_to_str(f->type), f->size, vis_field_value_str(f));
             printf("           %s\n", f->description);
 
             for (size_t k = 0; k < f->valid_values.size; k++) {
