@@ -1,0 +1,3 @@
+[submodule "wiki"]
+	path = wiki
+	url = https://snailbaron@bitbucket.org/snailbaron/petool.git/wiki
