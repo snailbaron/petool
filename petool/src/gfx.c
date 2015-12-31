@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "error.h"
 #include "vis_struct.h"
+#include "text.h"
 
 #define NAME_WIDTH 200
 #define VALUE_WIDTH 300
@@ -100,6 +101,8 @@ void _render_popup(int x, int y, const char *text)
     SDL_RenderDrawRect(renderer, &outer_rect);
     SDL_RenderDrawRect(renderer, &inner_rect);
 
+    //size_t i = text_get_line(text, 0, 10);
+    //*((char *)text + i) = '\0';
     _render_text(text, x + 12, y + 12);
 }
 
@@ -133,7 +136,18 @@ void gfx_render()
     _render_vis_struct(coff_file_header, 20, 20);
 
     _render_popup(150, 200,
-         "Help text"
+        "Long description for test: "
+        "The preferred address of the first byte of image when loaded into memory; "
+        "must be a multiple of 64 K. The default for DLLs is 0x10000000. The default "
+        "for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, "
+        "Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. "
+        "The alignment (in bytes) of sections when they are loaded into memory. It "
+        "must be greater than or equal to FileAlignment. The default is the page size "
+        "for the architecture. "
+        "The alignment factor (in bytes) that is used to align the raw data of "
+        "sections in the image file. The value should be a power of 2 between 512 and "
+        "64 K, inclusive. The default is 512. If the SectionAlignment is less than the "
+        "architecture’s page size, then FileAlignment must match SectionAlignment. "
     );
 
     // Update screen

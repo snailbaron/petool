@@ -176,6 +176,7 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
     <ClCompile Include="src\optional_header.c" />
     <ClCompile Include="src\petc_parser.c" />
     <ClCompile Include="src\store.c" />
+    <ClCompile Include="src\text.c" />
     <ClCompile Include="src\vis_struct.c" />
     <ClCompile Include="src\pe_signature.c" />
   </ItemGroup>
@@ -185,6 +186,7 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
     <ClInclude Include="src\optional_header.h" />
     <ClInclude Include="src\petc_parser.h" />
     <ClInclude Include="src\store.h" />
+    <ClInclude Include="src\text.h" />
     <ClInclude Include="src\vis_struct.h" />
     <ClInclude Include="src\pe_signature.h" />
   </ItemGroup>
