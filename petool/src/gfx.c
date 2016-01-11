@@ -13,6 +13,7 @@
 #define CELL_HEIGHT 20
 #define POPUP_BORDER_WIDTH 7
 #define POPUP_TEXT_PADDING 5
+#define POPUP_MOUSE_OFFSET 20
 
 #define SYM_WIDTH 8
 #define SYM_HEIGHT 10
@@ -184,7 +185,7 @@ void gfx_render()
                 mouse_y >= gs->y && mouse_y < gs->y + CELL_HEIGHT * gs->vis->fields.size) {
             size_t field_idx = (mouse_y - gs->y) / CELL_HEIGHT;
             vis_field_t *field = store_pget(&gs->vis->fields, field_idx);
-            _render_popup(mouse_x, mouse_y, field->description);
+            _render_popup(mouse_x + POPUP_MOUSE_OFFSET, mouse_y + POPUP_MOUSE_OFFSET, field->description);
             break;
         }
     }
@@ -200,8 +201,8 @@ void gfx_loop()
     vis_struct_t *coff_file_header = vis_find_struct("COFF File Header");
     gfx_struct_t *gs = store_alloc(&gfx_structs);
     gs->vis = coff_file_header;
-    gs->x = 20;
-    gs->y = 20;
+    gs->x = 80;
+    gs->y = 50;
 
 
     bool done = false;
