@@ -42,9 +42,6 @@
     <ClCompile Include="src\text.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\mathfunc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\error.h">
@@ -69,9 +66,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\text.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\mathfunc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

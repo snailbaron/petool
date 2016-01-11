@@ -34,6 +34,8 @@ typedef enum
     VIS_ENUM,
     VIS_FLAG,
     VIS_TIME,
+
+    VIS_INVALID,
 } vis_field_type_t;
 
 /**

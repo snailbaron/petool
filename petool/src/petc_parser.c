@@ -38,6 +38,7 @@ static char error[MAX_ERROR_LEN + 1] = "";
 static int error_pos = 0;
 static bool status = true;
 
+
 // Raise an error during file parsing
 #define err(FORMAT, ...)                                                        \
 do {                                                                            \
@@ -51,6 +52,13 @@ do {                                                                            
 do {                                                                            \
     if (!status) {                                                              \
         return;                                                                 \
+    }                                                                           \
+} while (0)
+
+#define check_status_ret(RET)                                                   \
+do {                                                                            \
+    if (!status) {                                                              \
+        return (RET);                                                           \
     }                                                                           \
 } while (0)
 
@@ -119,6 +127,26 @@ CHECKER( is_non_eol,         !is_eol()                                          
 
 #undef CHECKER
 
+/*
+ * Manual checkers with arguments
+*/
+
+bool is_char(char ch)
+{
+    return (c == ch);
+}
+
+bool is_string(char *str)
+{
+    size_t i = 0;
+    for ( ; str[i] != '\0' && str[i] == c; i++) {
+        get_char();
+    }
+    bool found = (str[i] == '\0');
+    fseek(file, -i, SEEK_CUR);
+    return found;
+}
+
 
 /*
  * Low-level parsing functions.
@@ -161,6 +189,19 @@ void parse_string(char str[])
     }
 }
 
+// Parse any of the given strings
+char * read_string_anyof(char **str, size_t str_num)
+{
+    check_status_ret(NULL);
+    for (size_t i = 0; i < str_num; i++) {
+        if (is_string(str[i])) {
+            return str[i];
+        }
+    }
+    err("Expected one of the strings: %s\n", "");
+    return NULL;
+}
+
 // Parse a single character using a checker function
 void parse_check(bool (*checker)(), char *description)
 {
@@ -195,32 +236,44 @@ void parse_check_some(bool (*checker)(), char *description)
 */
 
 // Read a single character from the file being parsed, using a checker.
-void read_char(bool (*checker)(), char *dst, char *name)
+void read_check(bool (*checker)(), char *dst, char *name)
 {
     check_status();
     if (checker()) {
         *dst = c;
     }
-    parse_char_check(checker, name);
+    parse_check(checker, name);
 }
 
-// Read a value from the file being parsed to a fixed-length buffer.
-// Returns: Number of characters written to buffer, not counting the final
-//          null character.
-size_t read_value(bool (*checker)(), char *dst, size_t max_len, char *name)
+size_t read_check_any(bool (*checker)(), char *dst, size_t max_len, char *name)
 {
-    check_status();
+    check_status_ret(0);
     size_t i = 0;
     while (checker()) {
         if (i >= max_len) {
-            err("Error: %s is too long\n", name);
-            break;
+            err("%s is too long\n", name);
+            return 0;
         }
-        dst[i++] = c;
-        get_char();
+        read_check(checker, dst + i, name);
+        i++;
     }
-    dst[i] = '\0';
     return i;
+}
+
+size_t read_check_some(bool (*checker)(), char *dst, size_t max_len, char *name)
+{
+    check_status_ret(0);
+    read_check(checker, dst, name);
+    check_status_ret(0);
+    size_t num = read_check_any(checker, dst + 1, max_len - 1, name);
+    return num + 1;
+}
+
+void read_name(char *dst, size_t max_len, char *name)
+{
+    check_status();
+    read_char(is_name_letter, dst, name);
+    read_check_any(is_name_char, dst + 1, max_len - 1, name);
 }
 
 
@@ -240,15 +293,14 @@ void parse_sep()
 {
     check_status();
     parse_char_some('-');
-    parse_char_check(is_eol, "newline");
+    parse_check(is_eol, "newline");
 }
 
 void parse_descr_line()
 {
     check_status();
-    size_t written = read_value(is_non_eol, description + descr_idx, MAX_DESCR_LEN - descr_idx, "description");
-    descr_idx += written;
-    parse_char_check(is_eol, "newline");
+    descr_idx += read_check_any(is_non_eol, description + descr_idx, MAX_DESCR_LEN - descr_idx, "description");
+    parse_check(is_eol, "newline");
 }
 
 void parse_descr()
@@ -266,13 +318,6 @@ void parse_descr()
         parse_descr_line();
     }
     description[descr_idx] = '\0';
-}
-
-void parse_value_name()
-{
-    check_status();
-    read_char(is_name_letter, value_name, "value name");
-    read_value(is_name_char, value_name + 1, MAX_NAME_LEN - 1, "value name");
 }
 
 void parse_value()
@@ -299,7 +344,7 @@ void parse_value()
 void parse_value_info()
 {
     check_status();
-    parse_value_name();
+    read_name(value_name, MAX_NAME_LEN, "value name");
     parse_field_sep();
     parse_value();
     parse_field_sep();
@@ -350,26 +395,32 @@ void parse_field_vars()
     read_variation_list(field_vars, &field_var_num);
 }
 
+vis_field_type_t str_to_field_type(char *str)
+{
+    if (str == NULL) {
+        return VIS_INVALID;
+    }
+
+    if (strcmp(str, "ENUM") == 0) {
+        return VIS_ENUM;
+    } else if (strcmp(str, "UINT") == 0) {
+        return VIS_UINT;
+    } else if (strcmp(str, "TIME") == 0) {
+        return VIS_TIME;
+    } else if (strcmp(str, "FLAG") == 0) {
+        return VIS_FLAG;
+    } else {
+        return VIS_INVALID;
+    }
+}
+
 void parse_field_type()
 {
     check_status();
-    if (c == 'E') {
-        parse_string("ENUM");
-        check_status();
-        field_type = VIS_ENUM;
-    } else if (c == 'U') {
-        parse_string("UINT");
-        check_status();
-        field_type = VIS_UINT;
-    } else if (c == 'T') {
-        parse_string("TIME");
-        check_status();
-        field_type = VIS_TIME;
-    } else if (c == 'F') {
-        parse_string("FLAG");
-        check_status();
-        field_type = VIS_FLAG;
-    } else {
+    char types[4][5] = { "ENUM", "UINT", "TIME", "FLAG" };
+    char *result = parse_string_anyof(types, 4);
+    field_type = str_to_field_type(result);
+    if (field_type == VIS_INVALID) {
         err("Expected: %s\n", "field type");
     }
 }
