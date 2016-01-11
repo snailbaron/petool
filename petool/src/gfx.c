@@ -6,6 +6,7 @@
 #include "text.h"
 #include <math.h>
 #include <string.h>
+#include "store.h"
 
 #define NAME_WIDTH 200
 #define VALUE_WIDTH 300
@@ -29,6 +30,14 @@ static const SDL_Color text_color           = { 0, 0, 0, 255 };
 static const SDL_Color border_color         = { 0, 0, 0, 255 };
 static const SDL_Color popup_bg_color       = { 0xFF, 0xFF, 0xCC, 0xFF };
 static const SDL_Color popup_border_color   = { 0xFF, 0x99, 0x33, 0xFF };
+
+typedef struct
+{
+    vis_struct_t *vis;
+    int x, y;
+} gfx_struct_t;
+
+static store_t gfx_structs;
 
 void gfx_init()
 {
@@ -58,6 +67,9 @@ void gfx_init()
 
     // Load fonts
     font = TTF_OpenFont("../fonts/DejaVuSansMono.ttf", TEXT_POINT_SIZE);
+
+    // Initialize gfx structures store
+    store_create(&gfx_structs, gfx_struct_t);
 }
 
 void gfx_kill()
@@ -92,7 +104,7 @@ void _render_text(const char *text, int x, int y)
 void _render_popup(int x, int y, const char *text)
 {
     size_t text_len = strlen(text);
-    int line_size = (int)sqrtf((float)text_len);
+    int line_size = (int)sqrtf((float)text_len) * 2;
     int line_count = text_line_num(text, line_size);
 
     SDL_Rect outer_rect = {
@@ -157,14 +169,27 @@ void gfx_render()
     SDL_RenderClear(renderer);
 
     // Draw visual structures
-    vis_struct_t *coff_file_header = vis_find_struct("COFF File Header");
-    _render_vis_struct(coff_file_header, 20, 20);
+    for (size_t i = 0; i < gfx_structs.size; i++) {
+        gfx_struct_t *gs = store_pget(&gfx_structs, i);
+        _render_vis_struct(gs->vis, gs->x, gs->y);
+    }
 
+    // Draw popup help, if cursor is in position
+    int mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
 
-    char text[] =
-        "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z";
+    for (size_t i = 0; i < gfx_structs.size; i++) {
+        gfx_struct_t *gs = store_pget(&gfx_structs, i);
+        if (mouse_x >= gs->x && mouse_x < gs->x + NAME_WIDTH + VALUE_WIDTH &&
+                mouse_y >= gs->y && mouse_y < gs->y + CELL_HEIGHT * gs->vis->fields.size) {
+            size_t field_idx = (mouse_y - gs->y) / CELL_HEIGHT;
+            vis_field_t *field = store_pget(&gs->vis->fields, field_idx);
+            _render_popup(mouse_x, mouse_y, field->description);
+            break;
+        }
+    }
 
-    _render_popup(150, 200, text);
+    
 
     // Update screen
     SDL_RenderPresent(renderer);
@@ -172,6 +197,13 @@ void gfx_render()
 
 void gfx_loop()
 {
+    vis_struct_t *coff_file_header = vis_find_struct("COFF File Header");
+    gfx_struct_t *gs = store_alloc(&gfx_structs);
+    gs->vis = coff_file_header;
+    gs->x = 20;
+    gs->y = 20;
+
+
     bool done = false;
     while (!done) {
         SDL_Event evt;
