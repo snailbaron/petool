@@ -10,6 +10,7 @@
 #define MAX_SIZE_LEN 10
 #define MAX_TYPE_LEN 10
 #define MAX_VALUE_LEN 10
+#define MAX_VARIATIONS 5
 
 static FILE *file = NULL;
 static int c = '\0';
@@ -20,9 +21,13 @@ static char table_name[MAX_NAME_LEN + 1] = "";
 static vis_struct_t *current_struct = NULL;
 
 static vis_field_t *current_field = NULL;
-static size_t field_size = 0;
+static size_t field_sizes[MAX_VARIATIONS] = { 0 };
 static vis_field_type_t field_type;
 
+static char struct_vars[MAX_VARIATIONS][MAX_NAME_LEN + 1];
+static size_t struct_var_num = 0;
+static char field_vars[MAX_VARIATIONS][MAX_NAME_LEN + 1];
+static size_t field_var_num = 0;
 static char field_name[MAX_NAME_LEN + 1] = "";
 static char description[MAX_DESCR_LEN + 1] = "";
 static size_t descr_idx = 0;
@@ -52,6 +57,7 @@ do {                                                                            
 
 /*
  * Scanner function. Obtains 1 character at a time.
+ * Skips comments.
  * Performes translation:
  *     any kind of end-of-line (CR, LF, CRLF) -> \n
  * Other characters are delivered as-is.
@@ -60,6 +66,21 @@ void get_char()
 {
     // Get next character from the file
     c = getc(file);
+
+    // Skip comment if present, including end of line
+    if (c == '#') {
+        while (c != '\r' && c != '\n') {
+            c = getc(file);
+        }
+    }
+    if (c == '\r') {
+        c = getc(file);
+    }
+    if (c == '\n') {
+        c = getc(file);
+    }
+
+    // Convert any type of EOL to LF
     if (c == '\r') {
         // Skip the \r in \r\n sequence
         int c2 = getc(file);
@@ -87,16 +108,14 @@ void get_char()
 
 #define CHECKER(NAME, CONDITION) bool NAME() { return (CONDITION); }
 
-CHECKER( is_letter,          c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'                         )
-CHECKER( is_dec_digit,       c >= '0' && c <= '9'                                                 )
-CHECKER( is_hex_digit,       c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f' )
-CHECKER( is_whitespace,      c == ' ' || c == '\t' || c == '\v' || c == '\r' || c == '\n'         )
-CHECKER( is_line_space,      c == ' ' || c == '\t'                                                )
-CHECKER( is_eol,             c == '\r' || c == '\n'                                               )
-CHECKER( is_non_eol,         c != '\r' && c != '\n'                                               )
-CHECKER( is_alnum,           is_letter() || is_dec_digit()                                        )
-CHECKER( is_value_name_char, is_letter() || is_dec_digit() || c == '_'                            )
-CHECKER( is_table_name_char, is_letter() || is_dec_digit() || c == ' '                            )
+CHECKER( is_digit,           c >= '0' && c <= '9'                                                      )
+CHECKER( is_hex_digit,       c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f'      )
+CHECKER( is_name_letter,     c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'                              )
+CHECKER( is_name_char,       is_name_letter() || is_digit()                                            )
+CHECKER( is_whitespace,      c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v' )
+CHECKER( is_line_space,      c == ' ' || c == '\t'                                                     )
+CHECKER( is_eol,             c == '\n'                                                                 )
+CHECKER( is_non_eol,         !is_eol()                                                                 )
 
 #undef CHECKER
 
@@ -105,7 +124,7 @@ CHECKER( is_table_name_char, is_letter() || is_dec_digit() || c == ' '          
  * Low-level parsing functions.
 */
 
-// Parse a single pre-defined character
+// Parse a single given character
 void parse_char(char ch)
 {
     check_status();
@@ -116,18 +135,24 @@ void parse_char(char ch)
     get_char();
 }
 
-// Parse a single character using a checker function
-void parse_char_check(bool (*checker)(), char *expected_descr)
+// Parse a given character repeated zero or more times
+void parse_char_any(char ch)
 {
     check_status();
-    if (checker()) {
+    while (c == ch) {
         get_char();
-        return;
     }
-    err("Expected: %s\n", expected_descr);
 }
 
-// Parse a sequence of characters
+// Parse given character repeated one or more times
+void parse_char_some(char ch)
+{
+    check_status();
+    parse_char(ch);
+    parse_char_any(ch);
+}
+
+// Parse given string of characters
 void parse_string(char str[])
 {
     check_status();
@@ -136,6 +161,34 @@ void parse_string(char str[])
     }
 }
 
+// Parse a single character using a checker function
+void parse_check(bool (*checker)(), char *description)
+{
+    check_status();
+    if (checker()) {
+        get_char();
+        return;
+    }
+    err("Expected: %s\n", description);
+}
+
+// Parse zero or more characters satisfying a checker
+void parse_check_any(bool (*checker)())
+{
+    check_status();
+    while (checker()) {
+        get_char();
+    }
+}
+
+// Parse one or more characters satisfying a checker
+void parse_check_some(bool (*checker)(), char *description)
+{
+    check_status();
+    parse_check(checker, description);
+    parse_check_any(checker);
+}
+    
 
 /*
  * Functions for retrieving values from file being parsed
@@ -144,6 +197,7 @@ void parse_string(char str[])
 // Read a single character from the file being parsed, using a checker.
 void read_char(bool (*checker)(), char *dst, char *name)
 {
+    check_status();
     if (checker()) {
         *dst = c;
     }
@@ -155,6 +209,7 @@ void read_char(bool (*checker)(), char *dst, char *name)
 //          null character.
 size_t read_value(bool (*checker)(), char *dst, size_t max_len, char *name)
 {
+    check_status();
     size_t i = 0;
     while (checker()) {
         if (i >= max_len) {
@@ -173,96 +228,42 @@ size_t read_value(bool (*checker)(), char *dst, size_t max_len, char *name)
 ** Parsing functions for grammar non-terminals
 */
 
-void parse_eol()
+void parse_field_sep()
 {
     check_status();
-    if (c == '\n') {
-        get_char();
-    } else if (c == '\r') {
-        get_char();
-        if (c == '\n') {
-            get_char();
-        }
-    } else {
-        err("Expected: %s\n", "newline");
-    }
-}
-
-void parse_value_number()
-{
-    check_status();
-    parse_string("0x");
-
-    char buf[MAX_VALUE_LEN + 1];
-    if (is_hex_digit()) {
-        buf[0] = c;
-    }
-    parse_char_check(is_hex_digit, "hex digit");
-    read_value(is_hex_digit, buf + 1, MAX_VALUE_LEN - 1, "value");
-
-    value = strtoull(buf, NULL, 16);
-}
-
-void parse_field_size()
-{
-    check_status();
-    char buf[MAX_SIZE_LEN + 1];
-    if (is_dec_digit()) {
-        buf[0] = c;
-    }
-    parse_char_check(is_dec_digit, "decimal digit");
-    read_value(is_dec_digit, buf + 1, MAX_SIZE_LEN - 1, "field size");
-    check_status();
-    field_size = atoll(buf);
-}
-
-void parse_field_separator()
-{
-    check_status();
-    while (is_line_space()) {
-        get_char();
-    }
+    parse_check_any(is_line_space);
     parse_char('|');
-    while (is_line_space()) {
-        get_char();
-    }
+    parse_check_any(is_line_space);
 }
 
-void parse_separator()
+void parse_sep()
 {
     check_status();
-    parse_char('-');
-    while (c == '-') {
-        get_char();
-    }
-    parse_eol();
+    parse_char_some('-');
+    parse_char_check(is_eol, "newline");
 }
 
-void parse_description_line()
+void parse_descr_line()
 {
     check_status();
     size_t written = read_value(is_non_eol, description + descr_idx, MAX_DESCR_LEN - descr_idx, "description");
     descr_idx += written;
-    parse_eol();
+    parse_char_check(is_eol, "newline");
 }
 
-void parse_description()
+void parse_descr()
 {
     check_status();
-
     descr_idx = 0;
-    parse_description_line();
+    parse_descr_line();
     while (c == ' ') {
         if (descr_idx >= MAX_DESCR_LEN) {
             err("Error: %s\n", "description is too long");
             break;
         }
         description[descr_idx++] = ' ';
-        parse_char(' ');
-        while (c == ' ') {
-            get_char();
-        }
-        parse_description_line();
+        parse_char_some(' ');
+        parse_descr_line();
     }
     description[descr_idx] = '\0';
 }
@@ -270,48 +271,83 @@ void parse_description()
 void parse_value_name()
 {
     check_status();
-    size_t i = 0;
-    if (is_letter()) {
-        value_name[i++] = c;
-    }
-    parse_char_check(is_letter, "letter");
-    read_value(is_value_name_char, value_name + 1, MAX_NAME_LEN - 1, "value");
+    read_char(is_name_letter, value_name, "value name");
+    read_value(is_name_char, value_name + 1, MAX_NAME_LEN - 1, "value name");
 }
 
 void parse_value()
 {
     check_status();
-    parse_value_name();
-    parse_field_separator();
-    parse_value_number();
-    parse_field_separator();
-    parse_description();
+    char buf[MAX_VALUE_LEN + 1];
 
+    if (c == '0') {
+        get_char();
+        if (c == 'x') {
+            get_char();
+            read_value(is_hex_digit, buf, MAX_VALUE_LEN, "value");
+            value = strtoull(buf, NULL, 16);
+            return;
+        } else {
+            fseek(file, -1, SEEK_CUR);
+            c = '0';
+        }
+    }
+    read_value(is_digit, buf, MAX_VALUE_LEN, "value");
+    value = strtoull(buf, NULL, 10);
+}
+
+void parse_value_info()
+{
+    check_status();
+    parse_value_name();
+    parse_field_sep();
+    parse_value();
+    parse_field_sep();
+    parse_descr();
     vis_add_value_info(current_field, value_name, value, description);
 }
 
-void parse_field_definition()
+void parse_field_def()
 {
     check_status();
-    parse_separator();
-    parse_value();
-    check_status();
-    while (c != '-') {
-        parse_value();
-    }
-    parse_separator();
+    parse_sep();
+    do {
+        parse_value_info();
+        check_status();
+    } while (c != '-');
+    parse_sep();
 }
 
-void parse_field_name()
+void read_variation(char *dst)
+{
+    check_status();
+    read_char(is_name_letter, dst, "variation");
+    read_value(is_name_char, dst + 1, MAX_NAME_LEN, "variation");
+}
+
+void read_variation_list(char **dst, size_t *size)
 {
     check_status();
     size_t i = 0;
-    if (is_letter()) {
-        field_name[i++] = c;
-    }
-    parse_char_check(is_letter, "letter");
+    read_variation(dst[i++]);
+    parse_check_any(is_line_space);
 
-    read_value(is_alnum, field_name + 1, MAX_NAME_LEN - 1, "field name");
+    while (c == ',') {
+        if (i >= MAX_VARIATIONS) {
+            err("%s\n", "Too many variations");
+            return;
+        }
+        parse_char(',');
+        parse_check_any(is_line_space);
+        read_variation(dst[i++]);
+    }
+    *size = i;
+}
+
+void parse_field_vars()
+{
+    check_status();
+    read_variation_list(field_vars, &field_var_num);
 }
 
 void parse_field_type()
@@ -338,92 +374,119 @@ void parse_field_type()
     }
 }
 
+void read_field_size(size_t *dst)
+{
+    check_status();
+    char buf[MAX_SIZE_LEN + 1];
+    read_value(is_digit, buf, MAX_SIZE_LEN, "field size");
+    check_status();
+    size_t size = atoll(buf);
+    if (size != '1' && size != '2' && size != '4' && size != '8') {
+        err("Expected: %s\n", "field size");
+        return;
+    }
+    *dst = size;
+}
+
+void parse_field_sizes()
+{
+    check_status();
+    size_t i = 0;
+    read_field_size(&field_sizes[i++]);
+    while (c == '/') {
+        if (i >= MAX_VARIATIONS) {
+            err("%s\n", "Too many field sizes");
+            return;
+        }
+        parse_char('/');
+        read_field_size(&field_sizes[i++]);
+    }
+}
+
+void parse_field_name()
+{
+    check_status();
+    read_char(is_name_letter, field_name, "field name");
+    read_value(is_name_char, field_name + 1, MAX_NAME_LEN - 1, "field name");
+}
+
 void parse_field()
 {
     check_status();
-    parse_field_size();
-    parse_field_separator();
+    if (c == '[') {
+        parse_char('[');
+        parse_field_vars();
+        parse_char(']');
+        parse_check_any(is_line_space);
+        parse_check(is_eol, "end of line");
+    }
+    parse_field_sizes();
+    parse_field_sep();
     parse_field_type();
-    parse_field_separator();
+    parse_field_sep();
     parse_field_name();
-    parse_field_separator();
-    parse_description();
-
-    vis_add_field(current_struct, field_name, field_size, field_type, description);
+    parse_field_sep;
+    parse_descr();
 }
 
-void parse_table_definition()
+void parse_struct_def()
 {
     check_status();
-    parse_separator();
+    parse_sep();
     parse_field();
     check_status();
     while (c != '-') {
         parse_field();
+        check_status();
     }
-    parse_separator();
+    parse_sep();
 }
 
-void parse_table_name()
+void parse_struct_name()
 {
     check_status();
-
-    size_t i = 0;
-    if (is_letter()) {
-        table_name[i++] = c;
-    }
-    parse_char_check(is_letter, "letter");
-
-    read_value(is_table_name_char, table_name + 1, MAX_NAME_LEN - 1, "table name");
+    read_char(is_name_letter, table_name, "struct name");
+    read_value(is_name_char, table_name + 1, MAX_NAME_LEN - 1, "struct name");
 }
 
-void parse_definition()
+void parse_decl()
+{
+    check_status();
+    parse_struct_name();
+    if (c == ':') {
+        parse_char(':');
+        parse_check_any(is_line_space);
+        read_variation_list(struct_vars, &struct_var_num);
+    }
+}
+
+void parse_def()
 {
     check_status();
     parse_char('[');
-    parse_table_name();
+    parse_decl();
     parse_char(']');
-    while (is_line_space()) {
-        get_char();
-    }
-
-    if (is_eol()) {
-        parse_eol();
-
-        current_struct = vis_create_struct(table_name);
-        parse_table_definition();
-    } else {
+    if (c == ':') {
         parse_char(':');
-        while (is_line_space()) {
-            get_char();
-        }
+        parse_check_any(is_line_space);
         parse_field_name();
-
-        current_struct = vis_find_struct(table_name);
-        current_field = vis_find_field(current_struct, field_name);
-
-        while (is_line_space()) {
-            get_char();
-        }
-        parse_eol();
-        parse_field_definition();
-
-        printf("\n");
+        parse_check_any(is_line_space);
+        parse_check(is_eol, "end of line");
+        parse_field_def();
+    } else {
+        parse_check_any(is_line_space);
+        parse_check(is_eol, "end of line");
+        parse_struct_def();
     }
 }
 
 void parse_config()
 {
     check_status();
-    while (is_whitespace()) {
-        get_char();
-    }
-
+    parse_check_any(is_whitespace);
     while (c == '[') {
-        parse_definition();
-        while (is_whitespace()) {
-            get_char();
-        }
+        parse_def();
+        parse_check_any(is_whitespace);
     }
 
     if (c != EOF) {
