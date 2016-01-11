@@ -4,11 +4,19 @@
 #include "error.h"
 #include "vis_struct.h"
 #include "text.h"
+#include <math.h>
+#include <string.h>
 
 #define NAME_WIDTH 200
 #define VALUE_WIDTH 300
 #define CELL_HEIGHT 20
 #define POPUP_BORDER_WIDTH 7
+#define POPUP_TEXT_PADDING 5
+
+#define SYM_WIDTH 8
+#define SYM_HEIGHT 10
+#define TEXT_VERT_SPACE 5
+#define TEXT_POINT_SIZE 13
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -49,7 +57,7 @@ void gfx_init()
     }
 
     // Load fonts
-    font = TTF_OpenFont("../fonts/DejaVuSansMono.ttf", 15);
+    font = TTF_OpenFont("../fonts/DejaVuSansMono.ttf", TEXT_POINT_SIZE);
 }
 
 void gfx_kill()
@@ -83,12 +91,22 @@ void _render_text(const char *text, int x, int y)
 
 void _render_popup(int x, int y, const char *text)
 {
-    SDL_Rect outer_rect = { x, y, 200, 100 };
+    size_t text_len = strlen(text);
+    int line_size = (int)sqrtf((float)text_len);
+    int line_count = text_line_num(text, line_size);
+
+    SDL_Rect outer_rect = {
+        x,
+        y,
+        line_size * SYM_WIDTH + POPUP_TEXT_PADDING * 2 + POPUP_BORDER_WIDTH * 2,
+        line_count * (SYM_HEIGHT + TEXT_VERT_SPACE) + POPUP_TEXT_PADDING * 2 + POPUP_BORDER_WIDTH * 2
+    };
+
     SDL_Rect inner_rect = {
-        x + POPUP_BORDER_WIDTH - 1,
-        y + POPUP_BORDER_WIDTH - 1,
-        200 - 2 * (POPUP_BORDER_WIDTH - 1),
-        100 - 2 * (POPUP_BORDER_WIDTH - 1),
+        outer_rect.x + POPUP_BORDER_WIDTH - 1,
+        outer_rect.y + POPUP_BORDER_WIDTH - 1,
+        outer_rect.w - 2 * (POPUP_BORDER_WIDTH - 1),
+        outer_rect.h - 2 * (POPUP_BORDER_WIDTH - 1),
     };
 
     _set_color(popup_border_color);
@@ -101,9 +119,16 @@ void _render_popup(int x, int y, const char *text)
     SDL_RenderDrawRect(renderer, &outer_rect);
     SDL_RenderDrawRect(renderer, &inner_rect);
 
-    //size_t i = text_get_line(text, 0, 10);
-    //*((char *)text + i) = '\0';
-    _render_text(text, x + 12, y + 12);
+    text_line_t tl = text_line(text, line_size);
+    for (int i = 0; tl.size > 0; i++) {
+        char temp = tl.start[tl.size];
+        tl.start[tl.size] = '\0';
+        _render_text(tl.start, inner_rect.x + POPUP_TEXT_PADDING, inner_rect.y + POPUP_TEXT_PADDING + i * (SYM_HEIGHT + TEXT_VERT_SPACE));
+        tl.start[tl.size] = temp;
+
+        tl = text_line(tl.start + tl.size, line_size);
+    }
+    
 }
 
 void _render_vis_struct(vis_struct_t *st, int x, int y)
@@ -135,20 +160,11 @@ void gfx_render()
     vis_struct_t *coff_file_header = vis_find_struct("COFF File Header");
     _render_vis_struct(coff_file_header, 20, 20);
 
-    _render_popup(150, 200,
-        "Long description for test: "
-        "The preferred address of the first byte of image when loaded into memory; "
-        "must be a multiple of 64 K. The default for DLLs is 0x10000000. The default "
-        "for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, "
-        "Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. "
-        "The alignment (in bytes) of sections when they are loaded into memory. It "
-        "must be greater than or equal to FileAlignment. The default is the page size "
-        "for the architecture. "
-        "The alignment factor (in bytes) that is used to align the raw data of "
-        "sections in the image file. The value should be a power of 2 between 512 and "
-        "64 K, inclusive. The default is 512. If the SectionAlignment is less than the "
-        "architecture’s page size, then FileAlignment must match SectionAlignment. "
-    );
+
+    char text[] =
+        "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z";
+
+    _render_popup(150, 200, text);
 
     // Update screen
     SDL_RenderPresent(renderer);
