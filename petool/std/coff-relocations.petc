@@ -1,4 +1,4 @@
-[COFF Relocation]
+[COFF_Relocation]
 ------------------------------------------------------------------------------------------------------------------------
 4 | UINT | VirtualAddress   | The address of the item to which relocation is applied. This is the offset from the
                               beginning of the section, plus the value of the section’s RVA/Offset field. See section 4,
@@ -11,7 +11,7 @@
                               types depend on machine type. See section 5.2.1, “Type Indicators.”
 ------------------------------------------------------------------------------------------------------------------------
 
-[COFF Relocation]: Type
+[COFF_Relocation]: Type
 ------------------------------------------------------------------------------------------------------------------------
 # x64 Processors
 IMAGE_REL_AMD64_ABSOLUTE       | 0x0000 | The relocation is ignored.

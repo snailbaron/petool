@@ -1,4 +1,4 @@
-[Section Header]
+[Section_Header]
 ------------------------------------------------------------------------------------------------------------------------
 8 | CHAR | Name                 | An 8-byte, null-padded UTF-8 encoded string. If the string is exactly 8 characters
                                   long, there is no terminating null. For longer names, this field contains a slash (/)
@@ -37,7 +37,7 @@
                                   section 4.1, “Section Flags.”
 ------------------------------------------------------------------------------------------------------------------------
 
-[Section Header]: Characteristics
+[Section_Header]: Characteristics
 ------------------------------------------------------------------------------------------------------------------------
 #                                | 0x00000000 | Reserved for future use.
 #                                | 0x00000001 | Reserved for future use.
@@ -88,3 +88,4 @@ IMAGE_SCN_MEM_EXECUTE            | 0x20000000 | The section can be executed as c
 IMAGE_SCN_MEM_READ               | 0x40000000 | The section can be read.
 IMAGE_SCN_MEM_WRITE              | 0x80000000 | The section can be written to.
 ------------------------------------------------------------------------------------------------------------------------
+

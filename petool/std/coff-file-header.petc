@@ -1,4 +1,4 @@
-[COFF File Header]
+[COFF_File_Header]
 -------------------------------------------------------------------------------------------------------
 2 | ENUM | Machine              | The number that identifies the type of target machine.
 2 | UINT | NumberOfSections     | The number of sections. This indicates the size of the section table,
@@ -18,7 +18,7 @@
 2 | FLAG | Characteristics      | The flags that indicate the attributes of the file.
 -------------------------------------------------------------------------------------------------------
 
-[COFF File Header]: Machine
+[COFF_File_Header]: Machine
 -------------------------------------------------------------------------------------------------------
 IMAGE_FILE_MACHINE_UNKNOWN   | 0x0    |
 IMAGE_FILE_MACHINE_ALPHA     | 0x0184 | Alpha_AXP, NOT IN SPEC
@@ -53,7 +53,7 @@ IMAGE_FILE_MACHINE_TRICORE   | 0x0520 | Infineon, NOT IN SPEC
 IMAGE_FILE_MACHINE_WCEMIPSV2 | 0x0169 | MIPS little-endian WCE v2
 -------------------------------------------------------------------------------------------------------
 
-[COFF File Header]: Characteristics
+[COFF_File_Header]: Characteristics
 -------------------------------------------------------------------------------------------------------
 IMAGE_FILE_RELOCS_STRIPPED         | 0x0001 | Relocation info stripped from file.
 IMAGE_FILE_EXECUTABLE_IMAGE        | 0x0002 | File is executable  (i.e. no unresolved external references).
