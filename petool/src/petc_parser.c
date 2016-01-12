@@ -106,12 +106,12 @@ void get_char()
         while (c != '\r' && c != '\n' && c != EOF) {
             c = getc(file);
         }
-    }
-    if (c == '\r') {
-        c = getc(file);
-    }
-    if (c == '\n') {
-        c = getc(file);
+        if (c == '\r') {
+            c = getc(file);
+        }
+        if (c == '\n') {
+            c = getc(file);
+        }
     }
 
     // Convert any type of EOL to LF
@@ -441,6 +441,7 @@ void parse_field_size(size_t *dst)
         err("Expected: %s\n", "field size");
     }
     *dst = size;
+    get_char();
 }
 
 // Parse field's size(s) in structure definition
@@ -584,7 +585,7 @@ void parse_file(const char *fname)
     parse_config();
 
     if (!status) {
-        fprintf(stderr, "%s", error);
+        fprintf(stderr, "Error parsing %s:\n%s", fname, error);
     }
 
     fclose(file);

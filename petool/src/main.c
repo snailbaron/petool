@@ -751,24 +751,29 @@ typedef import_directory_record_t;
 int main(int argc, char *argv[])
 {
     parse_file("std/coff-file-header.petc");
+    parse_file("std/coff-relocations.petc");
+    parse_file("std/optional-header.petc");
+    parse_file("std/section-table.petc");
 
-    FILE *infile = NULL;
-    if (fopen_s(&infile, "args.exe", "rb")) {
-        set_error("Failed to open file");
-        return false;
-    }
-    read_pe_signature(infile);
-    vis_read_struct(infile, "COFF File Header");
+    //FILE *infile = NULL;
+    //if (fopen_s(&infile, "args.exe", "rb")) {
+    //    set_error("Failed to open file");
+    //    return false;
+    //}
+    //read_pe_signature(infile);
+    //vis_read_struct(infile, "COFF File Header");
 
-    vis_print_all();
+    //vis_print_all();
     
-    gfx_init();
+    //gfx_init();
 
-    gfx_loop();
+    //gfx_loop();
 
-    gfx_kill();
+    //gfx_kill();
 
-    fclose(infile);
+    //fclose(infile);
+
+    system("pause");
 
     return 0;
 }

@@ -81,6 +81,7 @@
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:msvcrt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
@@ -104,6 +105,7 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:msvcrt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
@@ -131,6 +133,7 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:msvcrt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
@@ -158,6 +161,7 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)sdl\lib\$(PlatformName);$(SolutionDir)sdl-ttf\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:msvcrt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)sdl\lib\$(PlatformName)\SDL2.dll" "$(ProjectDir)"
