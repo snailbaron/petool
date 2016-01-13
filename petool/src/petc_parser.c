@@ -66,7 +66,12 @@ static int error_pos = 0;
 static bool status = true;
 
 // Raise an error during file parsing
-#define err(FORMAT, ...)                                                        \
+void err(const char *msg) {
+    error_pos += sprintf_s(error + error_pos, MAX_ERROR_LEN + 1 - error_pos,
+        "%d:%d %s\n", line_number, sym_number, msg);
+}
+
+#define ferr(FORMAT, ...)                                                       \
 do {                                                                            \
     error_pos += sprintf_s(error + error_pos, MAX_ERROR_LEN + 1 - error_pos,    \
         "%d:%d " FORMAT, line_number, sym_number, __VA_ARGS__);                 \
@@ -141,7 +146,7 @@ void get_char()
 */
 
 // Definition of checker functions
-#define CHECKER(NAME, CONDITION)                        \
+#define CHECKER(NAME, STR, CONDITION)                   \
 bool is_ ## NAME ()                                     \
 {                                                       \
     return (CONDITION);                                 \
@@ -154,7 +159,7 @@ void skip_ ## NAME ()                                   \
         get_char();                                     \
         return;                                         \
     }                                                   \
-    err("%s\n", "Unexpected");                          \
+    ferr("Expected: %s\n", STR);                        \
 }                                                       \
                                                         \
 void skip_any_ ## NAME ()                               \
@@ -163,6 +168,14 @@ void skip_any_ ## NAME ()                               \
     while (is_ ## NAME()) {                             \
         skip_ ## NAME();                                \
     }                                                   \
+}                                                       \
+                                                        \
+void skip_some_ ## NAME ()                              \
+{                                                       \
+    check_status();                                     \
+    skip_ ## NAME();                                    \
+    check_status();                                     \
+    skip_any_ ## NAME();                                \
 }                                                       \
                                                         \
 void read_ ## NAME (char *dst)                          \
@@ -180,7 +193,7 @@ size_t read_any_ ## NAME (char *dst, size_t max_len)    \
     size_t i = 0;                                       \
     while (is_ ## NAME()) {                             \
         if (i >= max_len) {                             \
-            err("%s\n", "too long");                    \
+            ferr("Too many of: %s\n", STR);             \
             return i;                                   \
         }                                               \
         read_ ## NAME(&dst[i++]);                       \
@@ -200,14 +213,15 @@ size_t read_some_ ## NAME (char *dst, size_t max_len)   \
 }
 
 // Checkers
-CHECKER( ws,        c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v' )
-CHECKER( ls,        c == ' ' || c == '\t'                                                     )
-CHECKER( eol,       c == '\n'                                                                 )
-CHECKER( non_eol,   !is_eol()                                                                 )
-CHECKER( digit,     c >= '0' && c <= '9'                                                      )
-CHECKER( hex_digit, c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f'      )
-CHECKER( letter,    c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'                              )
-CHECKER( name_char, is_letter() || is_digit() || c == '_' || c == '+'                         )
+CHECKER( letter,    "letter",                c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'                              )
+CHECKER( dec_digit, "decimal digit",         c >= '0' && c <= '9'                                                      )
+CHECKER( hex_digit, "hexadecimal digit",     c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f'      )
+CHECKER( ws,        "whitespace character",  c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v' )
+CHECKER( ls,        "inline whitespace",     c == ' ' || c == '\t'                                                     )
+CHECKER( eol,       "newline",               c == '\n'                                                                 )
+CHECKER( non_eol,   "non-newline character", !is_eol()                                                                 )
+CHECKER( name_char, "name character",        is_letter() || is_dec_digit() || c == '_' || c == '+'                     )
+CHECKER( sep_char,  "-",                     c == '-'                                                                  )
 
 #undef CHECKER
 
@@ -217,12 +231,17 @@ CHECKER( name_char, is_letter() || is_digit() || c == '_' || c == '+'           
 
 bool is_string(char *str)
 {
+    int prev_char = c;
+
     char *p = str;
     while (*p != '\0' && *p == c) {
+        p++;
         get_char();
     }
     bool found = (*p == '\0');
     fseek(file, (long)(str - p), SEEK_CUR);
+
+    c = prev_char;
     return found;
 }
 
@@ -236,27 +255,10 @@ void parse_char(char ch)
 {
     check_status();
     if (c != ch) {
-        err("Expected: %c\n", ch);
+        ferr("Expected: %c\n", ch);
         return;
     }
     get_char();
-}
-
-// Parse a given character repeated zero or more times
-void parse_char_any(char ch)
-{
-    check_status();
-    while (c == ch) {
-        get_char();
-    }
-}
-
-// Parse given character repeated one or more times
-void parse_char_some(char ch)
-{
-    check_status();
-    parse_char(ch);
-    parse_char_any(ch);
 }
 
 // Parse given string of characters
@@ -269,69 +271,94 @@ void parse_string(char str[])
 }
 
 
-void read_name(char *dst, char *name)
+/*
+** Parsing functions for grammar non-terminals
+*/
+
+void parse_lss()
+{
+    check_status();
+    while (is_ls()) {
+        get_char();
+    }
+}
+
+void parse_wss()
+{
+    check_status();
+    while (is_ws()) {
+        get_char();
+    }
+}
+
+void parse_name(char dst[MAX_NAME_LEN + 1])
 {
     check_status();
     read_some_name_char(dst, MAX_NAME_LEN);
 }
 
-size_t read_name_list(char dst[][MAX_NAME_LEN + 1], size_t max_names, char *name)
+void parse_name_list(char dst[][MAX_NAME_LEN + 1], size_t max_name_num)
 {
-    check_status_ret(0);
-    size_t i = 0;
-    read_name(dst[i++], name);
-    skip_any_ls();
-    while (c == ',') {
-        if (i >= max_names) {
-            err("Too many names: %s\n", name);
-            return i;
-        }
-        read_name(dst[i++], name);
+    check_status();
+    if (max_name_num == 0) {
+        err("Too many names");
+        return;
     }
-    return i;
+    parse_name(dst[0]);
+    parse_lss();
+    if (c == ',') {
+        parse_char(',');
+        parse_lss();
+        parse_name_list(dst + 1, max_name_num - 1);
+    }
 }
 
-void read_number(vis_value_t *dst, char *name)
+void parse_dec_number(vis_value_t *dst)
 {
     check_status();
     char buf[MAX_VALUE_LEN + 1];
+    read_some_dec_digit(buf, MAX_VALUE_LEN);
+    check_status();
+    *dst = strtoull(buf, NULL, 10);
+}
 
+void parse_hex_number(vis_value_t *dst)
+{
+    check_status();
+    char buf[MAX_VALUE_LEN + 1];
+    read_some_hex_digit(buf, MAX_VALUE_LEN);
+    *dst = strtoull(buf, NULL, 16);
+}
+
+void parse_num_value(vis_value_t *dst)
+{
+    check_status();
     if (c == '0') {
         get_char();
         if (c == 'x') {
             get_char();
-            read_some_hex_digit(buf, MAX_VALUE_LEN);
-            check_status();
-            *dst = strtoull(buf, NULL, 16);
+            parse_hex_number(dst);
             return;
-        } else {
-            fseek(file, -1, SEEK_CUR);
         }
+        fseek(file, -1, SEEK_CUR);
     }
-    read_some_digit(buf, MAX_VALUE_LEN);
-    check_status();
-    strtoull(buf, NULL, 10);
+    parse_dec_number(dst);
 }
-
-
-/*
-** Parsing functions for grammar non-terminals
-*/
 
 // Parse field (vertical) separator
 void parse_field_sep()
 {
     check_status();
-    skip_any_ls();
+    parse_lss();
     parse_char('|');
-    skip_any_ls();
+    parse_lss();
 }
 
 // Parse horizontal (table) separator
 void parse_sep()
 {
     check_status();
-    parse_char_some('-');
+    skip_some_sep_char();
     skip_eol();
 }
 
@@ -343,30 +370,39 @@ void parse_descr_line()
     skip_eol();
 }
 
+// Parse one or more description lines
+void parse_descr_line_list()
+{
+    check_status();
+    parse_descr_line();
+    check_status();
+    if (is_ls()) {
+        skip_ls();
+        parse_lss();
+        parse_descr_line_list();
+    }
+}
+
 // Parse description
 void parse_descr()
 {
     check_status();
     descr_idx = 0;
-    parse_descr_line();
-    while (is_ls()) {
-        skip_any_ls();
-        parse_descr_line();
-    }
+    parse_descr_line_list();
 }
 
 // Parse value in field definition
 void parse_value()
 {
     check_status();
-    read_number(&value, "value");
+    parse_num_value(&value);
 }
 
 // Parse value name in field definition
 void parse_value_name()
 {
     check_status();
-    read_name(value_name, "value name");
+    parse_name(value_name);
 }
 
 // Parse value info in field definition
@@ -380,14 +416,22 @@ void parse_value_info()
     parse_descr();
 }
 
+// Parse list of values in field definition
+void parse_value_info_list()
+{
+    check_status();
+    if (is_name_char()) {
+        parse_value_info();
+        parse_value_info_list();
+    }
+}
+
 // Parse field definition
 void parse_field_def()
 {
     check_status();
     parse_sep();
-    while (c != '-') {
-        parse_value_info();
-    }
+    parse_value_info_list();
     parse_sep();
 }
 
@@ -395,14 +439,14 @@ void parse_field_def()
 void parse_target_field_name()
 {
     check_status();
-    read_name(target_field, "defined field name");   
+    parse_name(target_field);
 }
 
 // Parse field name in structure definition
 void parse_field_name()
 {
     check_status();
-    read_name(field_name, "field name");
+    parse_name(field_name);
 }
 
 // Parse field type in structure definition
@@ -422,7 +466,7 @@ void parse_field_type()
         parse_string("FLAG");
         field_type = VIS_ENUM;
     } else {
-        err("%s\n", "Expected: field type");
+        err("Expected: field type");
     }
 }
 
@@ -438,32 +482,30 @@ void parse_field_size(size_t *dst)
         case '8': size = 8; break;
     }
     if (!size) {
-        err("Expected: %s\n", "field size");
+        err("Expected: field size");
     }
     *dst = size;
     get_char();
 }
 
-// Parse field's size(s) in structure definition
-void parse_field_sizes()
+// Parse list of field sizes
+void parse_field_size_list()
 {
     check_status();
     size_t i = 0;
     parse_field_size(&field_sizes[i++]);
-    while (c == '/') {
-        if (i >= MAX_VARIATIONS) {
-            err("%s\n", "size list is too long");
-            return;
-        }
-        parse_field_size(&field_sizes[i++]);
-    }
+    check_status();
+    if (c == '/') {
+        parse_char('/');
+        parse_field_size_list();
+    }    
 }
 
 // Parse list of field variations
 void parse_field_variation_list()
 {
     check_status();
-    field_variation_num = read_name_list(field_variations, MAX_VARIATIONS, "field variations");
+    parse_name_list(field_variations, MAX_VARIATIONS);
 }
 
 // Parse field variations specification
@@ -473,7 +515,7 @@ void parse_field_spec()
     parse_char('[');
     parse_field_variation_list();
     parse_char(']');
-    skip_any_ls();
+    parse_lss();
     skip_eol();
 }
 
@@ -486,7 +528,7 @@ void parse_field()
     } else {
         field_variation_num = 0;
     }
-    parse_field_sizes();
+    parse_field_size_list();
     parse_field_sep();
     parse_field_type();
     parse_field_sep();
@@ -495,14 +537,22 @@ void parse_field()
     parse_descr();
 }
 
+// Parse list of fields in structure definition
+void parse_field_list()
+{
+    check_status();
+    if (is_dec_digit() || c == '[') {
+        parse_field();
+        parse_field_list();
+    }
+}
+
 // Parse structure definition (field sizes, types, names and descriptions)
 void parse_struct_def()
 {
     check_status();
     parse_sep();
-    while (c != '-') {
-        parse_field();
-    }
+    parse_field_list();
     parse_sep();
 }
 
@@ -510,14 +560,14 @@ void parse_struct_def()
 void parse_struct_variation_list()
 {
     check_status();
-    struct_num = read_name_list(struct_variations, MAX_VARIATIONS, "variation list");
+    parse_name_list(struct_variations, MAX_VARIATIONS);
 }
 
 // Parse structure name
 void parse_struct_name()
 {
     check_status();
-    read_name(struct_name, "structure name");
+    parse_name(struct_name);
 }
 
 // Parse structure specification: structure name and its variations
@@ -525,12 +575,12 @@ void parse_struct_spec()
 {
     check_status();
     parse_char('[');
-    skip_any_ls();
+    parse_lss();
     parse_struct_name();
-    skip_any_ls();
+    parse_lss();
     if (c == ':') {
         parse_char(':');
-        skip_any_ls();
+        parse_lss();
         parse_struct_variation_list();
     } else {
         struct_num = 0;
@@ -543,32 +593,40 @@ void parse_def()
 {
     check_status();
     parse_struct_spec();
-    skip_any_ls();
-    if (c == ':') {
-        parse_char(':');
-        skip_any_ls();
-        parse_target_field_name();
-        skip_any_ls();
-        skip_eol();
-        parse_field_def();
-    } else {
+    parse_lss();
+
+    if (is_eol()) {
         skip_eol();
         parse_struct_def();
+    } else {
+        parse_char(':');
+        parse_lss();
+        parse_target_field_name();
+        parse_lss();
+        skip_eol();
+        parse_field_def();
     }
+}
+
+// Parse a (possibly empty) list of definitions
+void parse_def_list()
+{
+    check_status();
+    if (c == '[') {
+        parse_def();
+        parse_wss();
+        parse_def_list();
+    }    
 }
 
 // Parse configuration file
 void parse_config()
 {
     check_status();
-    skip_any_ws();
-    while (c == '[') {
-        parse_def();
-        skip_any_ws();
-    }
-
+    parse_wss();
+    parse_def_list();
     if (c != EOF) {
-        err("Unexpected symbol: %c\n", c);
+        ferr("Unexpected symbol: %c\n", c);
     }
 }
 
