@@ -176,9 +176,12 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
   <ItemGroup>
     <ClCompile Include="src\error.c" />
     <ClCompile Include="src\gfx.c" />
+    <ClCompile Include="src\label.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\optional_header.c" />
-    <ClCompile Include="src\petc_parser.c" />
+    <ClCompile Include="src\petc\lexer.c" />
+    <ClCompile Include="src\petc\parser.c" />
+    <ClCompile Include="src\petc\scanner.c" />
     <ClCompile Include="src\store.c" />
     <ClCompile Include="src\text.c" />
     <ClCompile Include="src\vis_struct.c" />
@@ -187,8 +190,10 @@ copy "$(SolutionDir)sdl-ttf\lib\$(PlatformTarget)\zlib1.dll" "$(ProjectDir)"</Co
   <ItemGroup>
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\gfx.h" />
+    <ClInclude Include="src\label.h" />
     <ClInclude Include="src\optional_header.h" />
-    <ClInclude Include="src\petc_parser.h" />
+    <ClInclude Include="src\petc.h" />
+    <ClInclude Include="src\petc\petc_inner.h" />
     <ClInclude Include="src\store.h" />
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\vis_struct.h" />

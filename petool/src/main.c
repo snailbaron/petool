@@ -11,6 +11,7 @@
 #include "petc_parser.h"
 #include "vis_struct.h"
 #include "gfx.h"
+#include "label.h"
 
 
 
@@ -750,7 +751,13 @@ typedef import_directory_record_t;
 
 int main(int argc, char *argv[])
 {
-    parse_file("std/coff-file-header.petc");
+    label_t l = empty_label;
+
+    printf("%s\n", l.str);
+
+
+    //parse_file("std/coff-file-header.petc");
+
     //parse_file("std/coff-relocations.petc");
     //parse_file("std/optional-header.petc");
     //parse_file("std/section-table.petc");

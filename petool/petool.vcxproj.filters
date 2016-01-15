@@ -30,9 +30,6 @@
     <ClCompile Include="src\vis_struct.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\petc_parser.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +37,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\label.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\petc\scanner.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\petc\lexer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\petc\parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,9 +65,6 @@
     <ClInclude Include="src\vis_struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\petc_parser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\store.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,6 +72,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\petc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\petc\petc_inner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

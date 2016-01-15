@@ -1,104 +1,104 @@
-[Optional_Header: PE32, PE32+]
+STRUCT Optional_Header OF PE32, PE32+
 ------------------------------------------------------------------------------------------------------------------------
-2   | UINT | Magic                       | The unsigned integer that identifies the state of the image file. The most
+2   | UINT | Magic                       [ The unsigned integer that identifies the state of the image file. The most
                                            common number is 0x10B, which identifies it as a normal executable file.
                                            0x107 identifies it as a ROM image, and 0x20B identifies it as a PE32+
-                                           executable.
-1   | UINT | MajorLinkerVersion          | The linker major version number.
-1   | UINT | MinorLinkerVersion          | The linker minor version number.
-4   | UINT | SizeOfCode                  | The size of the code (text) section, or the sum of all code sections if there
-                                           are multiple sections.
-4   | UINT | SizeOfInitializedData       | The size of the initialized data section, or the sum of all such sections if
-                                           there are multiple data sections.
-4   | UINT | SizeOfUninitializedData     | The size of the uninitialized data section (BSS), or the sum of all such
-                                           sections if there are multiple BSS sections.
-4   | UINT | AddressOfEntryPoint         | The address of the entry point relative to the image base when the executable
+                                           executable. ]
+1   | UINT | MajorLinkerVersion          [ The linker major version number. ]
+1   | UINT | MinorLinkerVersion          [ The linker minor version number. ]
+4   | UINT | SizeOfCode                  [ The size of the code (text) section, or the sum of all code sections if there
+                                           are multiple sections. ]
+4   | UINT | SizeOfInitializedData       [ The size of the initialized data section, or the sum of all such sections if
+                                           there are multiple data sections. ]
+4   | UINT | SizeOfUninitializedData     [ The size of the uninitialized data section (BSS), or the sum of all such
+                                           sections if there are multiple BSS sections. ]
+4   | UINT | AddressOfEntryPoint         [ The address of the entry point relative to the image base when the executable
                                            file is loaded into memory. For program images, this is the starting address.
                                            For device drivers, this is the address of the initialization function. An
                                            entry point is optional for DLLs. When no entry point is present, this field
-                                           must be zero.
-[PE32]
-4   | UINT | BaseOfCode                  | The address that is relative to the image base of the beginning-of-code
-                                           section when it is loaded into memory.
-4   | UINT | BaseOfData                  | The address that is relative to the image base of the beginning-of-data
-                                           section when it is loaded into memory.
-4/8 | UINT | ImageBase                   | The preferred address of the first byte of image when loaded into memory;
+                                           must be zero. ]
+(PE32)
+4   | UINT | BaseOfCode                  [ The address that is relative to the image base of the beginning-of-code
+                                           section when it is loaded into memory. ]
+4   | UINT | BaseOfData                  [ The address that is relative to the image base of the beginning-of-data
+                                           section when it is loaded into memory. ]
+4/8 | UINT | ImageBase                   [ The preferred address of the first byte of image when loaded into memory;
                                            must be a multiple of 64 K. The default for DLLs is 0x10000000. The default
                                            for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000,
-                                           Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000.
-4   | UINT | SectionAlignment            | The alignment (in bytes) of sections when they are loaded into memory. It
+                                           Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. ]
+4   | UINT | SectionAlignment            [ The alignment (in bytes) of sections when they are loaded into memory. It
                                            must be greater than or equal to FileAlignment. The default is the page size
-                                           for the architecture.
-4   | UINT | FileAlignment               | The alignment factor (in bytes) that is used to align the raw data of
+                                           for the architecture. ]
+4   | UINT | FileAlignment               [ The alignment factor (in bytes) that is used to align the raw data of
                                            sections in the image file. The value should be a power of 2 between 512 and
                                            64 K, inclusive. The default is 512. If the SectionAlignment is less than the
-                                           architecture’s page size, then FileAlignment must match SectionAlignment.
-2   | UINT | MajorOperatingSystemVersion | The major version number of the required operating system.
-2   | UINT | MinorOperatingSystemVersion | The minor version number of the required operating system.
-2   | UINT | MajorImageVersion           | The major version number of the image.
-2   | UINT | MinorImageVersion           | The minor version number of the image.
-2   | UINT | MajorSubsystemVersion       | The major version number of the subsystem.
-2   | UINT | MinorSubsystemVersion       | The minor version number of the subsystem.
-4   | UINT | Win32VersionValue           | Reserved, must be zero.
-4   | UINT | SizeOfImage                 | The size (in bytes) of the image, including all headers, as the image is
-                                           loaded in memory. It must be a multiple of SectionAlignment.
-4   | UINT | SizeOfHeaders               | The combined size of an MS DOS stub, PE header, and section headers rounded
-                                           up to a multiple of FileAlignment.
-4   | UINT | CheckSum                    | The image file checksum. The algorithm for computing the checksum is
+                                           architecture’s page size, then FileAlignment must match SectionAlignment. ]
+2   | UINT | MajorOperatingSystemVersion [ The major version number of the required operating system. ]
+2   | UINT | MinorOperatingSystemVersion [ The minor version number of the required operating system. ]
+2   | UINT | MajorImageVersion           [ The major version number of the image. ]
+2   | UINT | MinorImageVersion           [ The minor version number of the image. ]
+2   | UINT | MajorSubsystemVersion       [ The major version number of the subsystem. ]
+2   | UINT | MinorSubsystemVersion       [ The minor version number of the subsystem. ]
+4   | UINT | Win32VersionValue           [ Reserved, must be zero. ]
+4   | UINT | SizeOfImage                 [ The size (in bytes) of the image, including all headers, as the image is
+                                           loaded in memory. It must be a multiple of SectionAlignment. ]
+4   | UINT | SizeOfHeaders               [ The combined size of an MS DOS stub, PE header, and section headers rounded
+                                           up to a multiple of FileAlignment. ]
+4   | UINT | CheckSum                    [ The image file checksum. The algorithm for computing the checksum is
                                            incorporated into IMAGHELP.DLL. The following are checked for validation at
                                            load time: all drivers, any DLL loaded at boot time, and any DLL that is
-                                           loaded into a critical Windows process.
-2   | UINT | Subsystem                   | The subsystem that is required to run this image. For more information, see
-                                           “Windows Subsystem” later in this specification.
-2   | UINT | DllCharacteristics          | For more information, see “DLL Characteristics” later in this specification.
-4/8 | UINT | SizeOfStackReserve          | The size of the stack to reserve. Only SizeOfStackCommit is committed; the
-                                           rest is made available one page at a time until the reserve size is reached.
-4/8 | UINT | SizeOfStackCommit           | The size of the stack to commit.
-4/8 | UINT | SizeOfHeapReserve           | The size of the local heap space to reserve. Only SizeOfHeapCommit is
+                                           loaded into a critical Windows process. ]
+2   | UINT | Subsystem                   [ The subsystem that is required to run this image. For more information, see
+                                           “Windows Subsystem” later in this specification. ]
+2   | UINT | DllCharacteristics          [ For more information, see “DLL Characteristics” later in this specification. ]
+4/8 | UINT | SizeOfStackReserve          [ The size of the stack to reserve. Only SizeOfStackCommit is committed; the
+                                           rest is made available one page at a time until the reserve size is reached. ]
+4/8 | UINT | SizeOfStackCommit           [ The size of the stack to commit. ]
+4/8 | UINT | SizeOfHeapReserve           [ The size of the local heap space to reserve. Only SizeOfHeapCommit is
                                            committed; the rest is made available one page at a time until the reserve
-                                           size is reached.
-4/8 | UINT | SizeOfHeapCommit            | The size of the local heap space to commit.
-4   | UINT | LoaderFlags                 | Reserved, must be zero.
-4   | UINT | NumberOfRvaAndSizes         | The number of data-directory entries in the remainder of the optional header.
-                                           Each describes a location and size.
+                                           size is reached. ]
+4/8 | UINT | SizeOfHeapCommit            [ The size of the local heap space to commit. ]
+4   | UINT | LoaderFlags                 [ Reserved, must be zero. ]
+4   | UINT | NumberOfRvaAndSizes         [ The number of data-directory entries in the remainder of the optional header.
+                                           Each describes a location and size. ]
 ------------------------------------------------------------------------------------------------------------------------
 
-[Optional_Header]: Subsystem
+FIELD Subsystem OF Optional_Header
 ------------------------------------------------------------------------------------------------------------------------
-IMAGE_SUBSYSTEM_UNKNOWN                 | 0  | An unknown subsystem
-IMAGE_SUBSYSTEM_NATIVE                  | 1  | Device drivers and native Windows processes
-IMAGE_SUBSYSTEM_WINDOWS_GUI             | 2  | The Windows graphical user interface (GUI) subsystem
-IMAGE_SUBSYSTEM_WINDOWS_CUI             | 3  | The Windows character subsystem
-IMAGE_SUBSYSTEM_POSIX_CUI               | 7  | The Posix character subsystem
-IMAGE_SUBSYSTEM_WINDOWS_CE_GUI          | 9  | Windows CE
-IMAGE_SUBSYSTEM_EFI_APPLICATION         | 10 | An Extensible Firmware Interface (EFI) application
-IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER | 11 | An EFI driver with boot services
-IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER      | 12 | An EFI driver with run-time services
-IMAGE_SUBSYSTEM_EFI_ROM                 | 13 | An EFI ROM image
-IMAGE_SUBSYSTEM_XBOX                    | 14 | XBOX
-------------------------------------------------------------------------------------------------------------------------
-
-[Optional_Header]: DllCharacteristics
-------------------------------------------------------------------------------------------------------------------------
-#                                              | 0x0001 | Reserved, must be zero.
-#                                              | 0x0002 | Reserved, must be zero.
-#                                              | 0x0004 | Reserved, must be zero.
-#                                              | 0x0008 | Reserved, must be zero.
-IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE         | 0x0040 | DLL can be relocated at load time.
-IMAGE_DLL_CHARACTERISTICS_FORCE_INTEGRITY      | 0x0080 | Code Integrity checks are enforced.
-IMAGE_DLL_CHARACTERISTICS_NX_COMPAT            | 0x0100 | Image is NX compatible.
-IMAGE_DLLCHARACTERISTICS_NO_ISOLATION          | 0x0200 | Isolation aware, but do not isolate the image.
-IMAGE_DLLCHARACTERISTICS_NO_SEH                | 0x0400 | Does not use structured exception (SE) handling. No SE handler
-                                                          may be called in this image.
-IMAGE_DLLCHARACTERISTICS_NO_BIND               | 0x0800 | Do not bind the image.
-#                                              | 0x1000 | Reserved, must be zero.
-IMAGE_DLLCHARACTERISTICS_WDM_DRIVER            | 0x2000 | A WDM driver.
-IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE | 0x8000 | Terminal Server aware.
+IMAGE_SUBSYSTEM_UNKNOWN                 | 0  [ An unknown subsystem ]
+IMAGE_SUBSYSTEM_NATIVE                  | 1  [ Device drivers and native Windows processes ]
+IMAGE_SUBSYSTEM_WINDOWS_GUI             | 2  [ The Windows graphical user interface (GUI) subsystem ]
+IMAGE_SUBSYSTEM_WINDOWS_CUI             | 3  [ The Windows character subsystem ]
+IMAGE_SUBSYSTEM_POSIX_CUI               | 7  [ The Posix character subsystem ]
+IMAGE_SUBSYSTEM_WINDOWS_CE_GUI          | 9  [ Windows CE ]
+IMAGE_SUBSYSTEM_EFI_APPLICATION         | 10 [ An Extensible Firmware Interface (EFI) application ]
+IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER | 11 [ An EFI driver with boot services ]
+IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER      | 12 [ An EFI driver with run-time services ]
+IMAGE_SUBSYSTEM_EFI_ROM                 | 13 [ An EFI ROM image ]
+IMAGE_SUBSYSTEM_XBOX                    | 14 [ XBOX ]
 ------------------------------------------------------------------------------------------------------------------------
 
-[Optional_Header_Data_Directory]
+FIELD DllCharacteristics OF Optional_Header
 ------------------------------------------------------------------------------------------------------------------------
-4 | UINT | VirtualAddress | Address of the table relative to the base address of the image when the table is loaded
-4 | UINT | Size           | Size of the table in bytes
+#                                              | 0x0001 [ Reserved, must be zero. ]
+#                                              | 0x0002 [ Reserved, must be zero. ]
+#                                              | 0x0004 [ Reserved, must be zero. ]
+#                                              | 0x0008 [ Reserved, must be zero. ]
+IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE         | 0x0040 [ DLL can be relocated at load time. ]
+IMAGE_DLL_CHARACTERISTICS_FORCE_INTEGRITY      | 0x0080 [ Code Integrity checks are enforced. ]
+IMAGE_DLL_CHARACTERISTICS_NX_COMPAT            | 0x0100 [ Image is NX compatible. ]
+IMAGE_DLLCHARACTERISTICS_NO_ISOLATION          | 0x0200 [ Isolation aware, but do not isolate the image. ]
+IMAGE_DLLCHARACTERISTICS_NO_SEH                | 0x0400 [ Does not use structured exception (SE) handling. No SE handler
+                                                          may be called in this image. ]
+IMAGE_DLLCHARACTERISTICS_NO_BIND               | 0x0800 [ Do not bind the image. ]
+#                                              | 0x1000 [ Reserved, must be zero. ]
+IMAGE_DLLCHARACTERISTICS_WDM_DRIVER            | 0x2000 [ A WDM driver. ]
+IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE | 0x8000 [ Terminal Server aware. ]
+------------------------------------------------------------------------------------------------------------------------
+
+STRUCT Optional_Header_Data_Directory
+------------------------------------------------------------------------------------------------------------------------
+4 | UINT | VirtualAddress [ Address of the table relative to the base address of the image when the table is loaded ]
+4 | UINT | Size           [ Size of the table in bytes ]
 ------------------------------------------------------------------------------------------------------------------------
 
